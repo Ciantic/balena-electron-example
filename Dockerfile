@@ -20,8 +20,13 @@ RUN install_packages xserver-xorg-core xinit
 # X command https://www.x.org/releases/X11R7.7/doc/man/man1/Xserver.1.xhtml
 RUN printf '\
 #!/bin/bash \n\
-exec /usr/bin/X -s 0 dpms -nocursor -nolisten tcp "$@"\
+exec /usr/bin/X -s 0 dpms -nolisten tcp "$@"\
 ' > /etc/X11/xinit/xserverrc
+
+# Enable USB hardware, e.g. keyboard or mouse on balena images
+# See https://github.com/balena-io-playground/balenalib-systemd-example/blob/master/app/Dockerfile.template
+ENV UDEV=1
+RUN install_packages xserver-xorg-input-all
 
 # # Test, with green xterm in the corner
 # RUN install_packages xterm
@@ -36,7 +41,6 @@ WORKDIR /app/built-electron
 RUN npm init -y
 RUN npm install electron@^6.1.0 --save --unsafe-perm --production --silent
 
-
 # -----------------------------------------------------------------------------
 # Your electron application
 FROM xserver
@@ -44,8 +48,5 @@ COPY --from=electron /app/built-electron /app/built-electron
 WORKDIR /app/kiosk
 COPY package.json .
 COPY main.js .
-
-# Enable USB hardware, e.g. keyboard or mouse on balena images
-ENV UDEV=1
 
 CMD ["startx", "/app/built-electron/node_modules/electron/dist/electron", "/app/kiosk", "--enable-logging", "--no-sandbox"]

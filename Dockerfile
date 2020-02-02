@@ -22,6 +22,8 @@ ENV UDEV=1
 RUN install_packages xserver-xorg-input-all
 
 # X command https://www.x.org/releases/X11R7.7/doc/man/man1/Xserver.1.xhtml
+#
+# Hide cursor with "-nocursor" in following:
 RUN printf '\
 #!/bin/bash \n\
 exec /usr/bin/X -s 0 dpms -nolisten tcp "$@"\

@@ -24,7 +24,6 @@ exec /usr/bin/X -s 0 dpms -nolisten tcp "$@"\
 ' > /etc/X11/xinit/xserverrc
 
 # Enable USB hardware, e.g. keyboard or mouse on balena images
-# See https://github.com/balena-io-playground/balenalib-systemd-example/blob/master/app/Dockerfile.template
 ENV UDEV=1
 RUN install_packages xserver-xorg-input-all
 

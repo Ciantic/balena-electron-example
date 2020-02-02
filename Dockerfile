@@ -17,15 +17,15 @@ RUN install_packages libnss3 libxtst6 libasound2 libglib2.0-0 libgdk-pixbuf2.0-0
 # X-server
 RUN install_packages xserver-xorg-core xinit 
 
+# Enable USB hardware, e.g. keyboard or mouse on balena images
+ENV UDEV=1
+RUN install_packages xserver-xorg-input-all
+
 # X command https://www.x.org/releases/X11R7.7/doc/man/man1/Xserver.1.xhtml
 RUN printf '\
 #!/bin/bash \n\
 exec /usr/bin/X -s 0 dpms -nolisten tcp "$@"\
 ' > /etc/X11/xinit/xserverrc
-
-# Enable USB hardware, e.g. keyboard or mouse on balena images
-ENV UDEV=1
-RUN install_packages xserver-xorg-input-all
 
 # # Test, with green xterm in the corner
 # RUN install_packages xterm

@@ -1,0 +1,27 @@
+version: "2.1"
+networks: {}
+services:
+    electron:
+        build:
+            context: .
+        privileged: true
+        restart: always
+        network_mode: host
+        tmpfs:
+            # Following ensure that chromium does not write it's cache, or other
+            # temporary files to the SD-card
+            - /root
+            - /tmp
+            - /run
+            - /var/log
+
+            # Docker sets /dev/shm too small, following ensures it's unlimited
+            # tmpfs. Without this you will encounter random out of memory, and
+            # fatals from chromium in long run (really hard to debug)
+            - /dev/shm 
+        labels:
+            io.balena.features.kernel-modules: "1"
+            io.balena.features.firmware: "1"
+            io.balena.features.dbus: "1"
+            io.balena.features.supervisor-api: "1"
+            io.balena.features.balena-api: "1"

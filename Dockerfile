@@ -21,6 +21,9 @@ RUN install_packages xserver-xorg-core xinit
 ENV UDEV=1
 RUN install_packages xserver-xorg-input-all
 
+# dbus-launch ( https://github.com/electron/electron/issues/13161 )
+RUN install_packages dbus-x11
+
 # X command https://www.x.org/releases/X11R7.7/doc/man/man1/Xserver.1.xhtml
 #
 # Hide cursor with "-nocursor" in following:
@@ -33,14 +36,13 @@ exec /usr/bin/X -s 0 dpms -nolisten tcp "$@"\
 # RUN install_packages xterm
 # CMD ["startx", "-fa", "Monospace", "-bg", "green", "-fg", "black"]
 
-
 # -----------------------------------------------------------------------------
 # Electron
 FROM builder as electron
 
 WORKDIR /app/built-electron
 RUN npm init -y
-RUN npm install electron@^6.1.0 --save --unsafe-perm --production --silent
+RUN npm install electron@^8 --save --unsafe-perm --production --silent
 
 # -----------------------------------------------------------------------------
 # Your electron application
@@ -50,4 +52,5 @@ WORKDIR /app/kiosk
 COPY package.json .
 COPY main.js .
 
-CMD ["startx", "/app/built-electron/node_modules/electron/dist/electron", "/app/kiosk", "--enable-logging", "--no-sandbox"]
+ENV DBUS_SYSTEM_BUS_ADDRESS unix:path=/host/run/dbus/system_bus_socket
+CMD ["startx", "/usr/bin/dbus-launch", "/app/built-electron/node_modules/electron/dist/electron", "/app/kiosk", "--enable-logging", "--no-sandbox"]
